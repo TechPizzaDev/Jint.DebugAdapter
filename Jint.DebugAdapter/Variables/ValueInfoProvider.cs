@@ -52,7 +52,7 @@ namespace Jint.DebugAdapter.Variables
             {
                 case ArgumentsInstance:
                 case ArrayInstance:
-                case TypedArrayInstance:
+                case JsTypedArray:
                     obj = value as ObjectInstance;
                     // Yes, JS supports array length up to 2^32-1, but DAP only supports up to 2^31-1
                     int length = (int)obj.Length;
@@ -120,11 +120,11 @@ namespace Jint.DebugAdapter.Variables
 
                 ArgumentsInstance arr => RenderArrayPreview(arr, String.Empty),
                 ArrayInstance arr => RenderArrayPreview(arr, String.Empty),
-                TypedArrayInstance arr => RenderArrayPreview(arr, GetObjectType(arr)),
+                JsTypedArray arr => RenderArrayPreview(arr, GetObjectType(arr)),
 
                 FunctionInstance func => $"ƒ {GetFunctionName(func) ?? name}",
 
-                RegExpInstance => value.ToString(),
+                JsRegExp => value.ToString(),
                 ObjectInstance obj => RenderObjectPreview(obj),
 
                 _ => value.ToString()

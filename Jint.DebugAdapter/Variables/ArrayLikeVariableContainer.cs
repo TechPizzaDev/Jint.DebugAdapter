@@ -48,7 +48,7 @@ namespace Jint.DebugAdapter.Variables
         {
             var items = instance switch
             {
-                TypedArrayInstance => GetTypedArrayIndexValues(start, count),
+                JsTypedArray => GetTypedArrayIndexValues(start, count),
                 ArgumentsInstance => GetArgumentsArrayIndexValues(start, count),
                 _ => GetArrayIndexValues(start, count)
             };
@@ -88,7 +88,7 @@ namespace Jint.DebugAdapter.Variables
 
         private IEnumerable<KeyValuePair<string, JsValue>> GetTypedArrayIndexValues(int? start, int? count)
         {
-            var arr = instance as TypedArrayInstance;
+            var arr = instance as JsTypedArray;
             
             int length = (int)arr.Length;
             if (count > 0)
@@ -130,7 +130,7 @@ namespace Jint.DebugAdapter.Variables
         {
             var props = instance switch
             {
-                TypedArrayInstance => GetTypedArrayProperties(),
+                JsTypedArray => GetTypedArrayProperties(),
                 ArgumentsInstance => GetArgumentsProperties(),
                 _ => GetArrayProperties()
             };
