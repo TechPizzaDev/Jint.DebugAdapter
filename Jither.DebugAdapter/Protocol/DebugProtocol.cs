@@ -18,11 +18,12 @@ namespace Jither.DebugAdapter.Protocol
         public ProtocolRequest Request { get; }
     }
 
-    public class DebugProtocol
+    public partial class DebugProtocol
     {
         private readonly Logger logger = LogManager.GetLogger();
 
-        private static readonly Regex rxContentLength = new(@"^.*?Content-Length: (?<length>\d+)\r\n\r\n", RegexOptions.Compiled | RegexOptions.Singleline);
+        [GeneratedRegex(@"^.*?Content-Length: (?<length>\d+)\r\n\r\n", RegexOptions.Singleline)]
+        private static partial Regex rxContentLength();
 
         private readonly Adapter adapter;
         private readonly Stream inputStream;
@@ -238,7 +239,7 @@ namespace Jither.DebugAdapter.Protocol
         private int ProcessHeader(ReadOnlySequence<byte> buffer)
         {
             string value = Encoding.UTF8.GetString(buffer);
-            Match match = rxContentLength.Match(value);
+            Match match = rxContentLength().Match(value);
             if (!match.Success)
             {
                 throw new ProtocolException($"Expected content-length header, but found: {value}");
@@ -281,7 +282,7 @@ namespace Jither.DebugAdapter.Protocol
         private async Task HandleMessage(string json)
         {
             ProtocolMessage message = JsonHelper.Deserialize<ProtocolMessage>(json);
-            
+
             switch (message)
             {
                 case BaseProtocolRequest request:
