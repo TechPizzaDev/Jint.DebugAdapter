@@ -11,8 +11,8 @@ function getTarget(target: vscode.Uri): vscode.Uri
 	return target;
 }
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+// This method is called when your extension is activated
+// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext)
 {
 	const provider = new JintDebugConfigurationProvider();
@@ -48,5 +48,5 @@ export function activate(context: vscode.ExtensionContext)
 	);
 }
 
-// this method is called when your extension is deactivated
+// This method is called when your extension is deactivated
 export function deactivate() {}

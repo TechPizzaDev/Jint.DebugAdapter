@@ -1,158 +1,160 @@
 {
-	"name": "jint-debugger",
-	"displayName": "Jint Debugger",
-	"description": "Example debugger extension for Jint",
-	"version": "0.0.1",
-	"license": "MIT",
-	"engines": {
-		"vscode": "^1.65.0"
-	},
-	"private": true,
-	"categories": [
-		"Debuggers"
-	],
-	"main": "./out/extension.js",
-	"activationEvents": [
-		"onCommand:extension.jint-debugger.getProgram",
-		"onCommand:extension.jint-debugger.runEditorFile",
-		"onCommand:extension.jint-debugger.debugEditorFile",
-		"onDebugResolve:jint"
-	],
-	"contributes": {
-		"menus": {
-			"editor/title/run": [
-				{
-					"command": "extension.jint-debugger.runEditorFile",
-					"when": "resourceLangId == javascript",
-					"group": "navigation@1"
-				},
-				{
-					"command": "extension.jint-debugger.debugEditorFile",
-					"when": "resourceLangId == javascript",
-					"group": "navigation@2"
-				}
-			],
-			"commandPalette": [
-				{
-					"command": "extension.jint-debugger.runEditorFile",
-					"when": "resourceLangId == javascript"
-				},
-				{
-					"command": "extension.jint-debugger.debugEditorFile",
-					"when": "resourceLangId == javascript"
-				}
-			]
-		},
-		"commands": [
-			{
-				"command": "extension.jint-debugger.runEditorFile",
-				"title": "Run File in Jint",
-				"category": "Jint",
-				"enablement": "!inDebugMode",
-				"icon": "$(play)"
-			},
-			{
-				"command": "extension.jint-debugger.debugEditorFile",
-				"title": "Debug File in Jint",
-				"category": "Jint",
-				"enablement": "!inDebugMode",
-				"icon": "$(debug-alt)"
-			}
-		],
-		"breakpoints": [
-			{
-				"language": "javascript"
-			}
-		],
-		"debuggers": [
-			{
-				"type": "jint",
-				"label": "Jint",
-				"program": "D:/Documents/Visual Studio 2022/Projects/Jint.DebugAdapter/Jint.DebugAdapterExample/bin/Debug/net6.0/Jint.DebugAdapterExample.exe",
-				"languages": [
-					"javascript"
-				],
-				"configurationAttributes": {
-					"launch": {
-						"required": [
-							"program"
-						],
-						"properties": {
-							"program": {
-								"type": "string",
-								"description": "Absolute path to the Javascript file to debug.",
-								"default": "${workspaceFolder}/${command:AskForProgram}"
-							},
-							"stopOnEntry": {
-								"type": "boolean",
-								"description": "Automatically stop before first line on launch.",
-								"default": true
-							}
-						}
-					},
-					"attach": {
-						"properties": {
-							"program": {
-								"type": "string",
-								"description": "Application-specific URL for a Javascript file that should be launched after attaching.",
-								"default": null
-							},
-							"stop": {
-								"type": "boolean",
-								"description": "Automatically stop running script at first opportunity.",
-								"default": false
-							}
-						}
-					}
-				},
-				"initialConfigurations": [
-					{
-						"type": "jint",
-						"request": "launch",
-						"name": "Debug in Jint (launch)",
-						"program": "${file}",
-						"stopOnEntry": true,
-						"port": 4711
-					},
-					{
-						"type": "jint",
-						"request": "launch",
-						"name": "Debug in Jint (debug server launch)",
-						"program": "${file}",
-						"stopOnEntry": true,
-						"debugServer": 4711
-					},
-					{
-						"type": "jint",
-						"request": "attach",
-						"name": "Debug in Jint (attach)",
-						"program": null,
-						"stop": false,
-						"port": 4711
-					}
-				],
-				"variables": {
-					"AskForProgram": "extension.jint-debugger.getProgram"
-				}
-			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
-		"lint": "eslint src --ext ts"
-	},
-	"devDependencies": {
-		"@types/vscode": "^1.65.0",
-		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.0.4",
-		"@types/node": "^12.11.7",
-		"eslint": "^7.19.0",
-		"@typescript-eslint/eslint-plugin": "^4.14.1",
-		"@typescript-eslint/parser": "^4.14.1",
-		"glob": "^7.1.6",
-		"typescript": "^4.1.3"
-	}
+  "name": "jint-debugger",
+  "displayName": "Jint Debugger",
+  "description": "Example debugger extension for Jint",
+  "version": "0.0.1",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "private": true,
+  "categories": [
+    "Debuggers"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onCommand:extension.jint-debugger.getProgram",
+    "onCommand:extension.jint-debugger.runEditorFile",
+    "onCommand:extension.jint-debugger.debugEditorFile",
+    "onDebugResolve:jint"
+  ],
+  "contributes": {
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "extension.jint-debugger.runEditorFile",
+          "when": "resourceLangId == javascript",
+          "group": "navigation@1"
+        },
+        {
+          "command": "extension.jint-debugger.debugEditorFile",
+          "when": "resourceLangId == javascript",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "extension.jint-debugger.runEditorFile",
+          "when": "resourceLangId == javascript"
+        },
+        {
+          "command": "extension.jint-debugger.debugEditorFile",
+          "when": "resourceLangId == javascript"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "extension.jint-debugger.runEditorFile",
+        "title": "Run File in Jint",
+        "category": "Jint",
+        "enablement": "!inDebugMode",
+        "icon": "$(play)"
+      },
+      {
+        "command": "extension.jint-debugger.debugEditorFile",
+        "title": "Debug File in Jint",
+        "category": "Jint",
+        "enablement": "!inDebugMode",
+        "icon": "$(debug-alt)"
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "javascript"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "jint",
+        "label": "Jint",
+        "program": "D:/Documents/Visual Studio 2022/Projects/Jint.DebugAdapter/Jint.DebugAdapterExample/bin/Debug/net6.0/Jint.DebugAdapterExample.exe",
+        "languages": [
+          "javascript"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Absolute path to the Javascript file to debug.",
+                "default": "${workspaceFolder}/${command:AskForProgram}"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically stop before first line on launch.",
+                "default": true
+              }
+            }
+          },
+          "attach": {
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Application-specific URL for a Javascript file that should be launched after attaching.",
+                "default": null
+              },
+              "stop": {
+                "type": "boolean",
+                "description": "Automatically stop running script at first opportunity.",
+                "default": false
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "jint",
+            "request": "launch",
+            "name": "Debug in Jint (launch)",
+            "program": "${file}",
+            "stopOnEntry": true,
+            "port": 4711
+          },
+          {
+            "type": "jint",
+            "request": "launch",
+            "name": "Debug in Jint (debug server launch)",
+            "program": "${file}",
+            "stopOnEntry": true,
+            "debugServer": 4711
+          },
+          {
+            "type": "jint",
+            "request": "attach",
+            "name": "Debug in Jint (attach)",
+            "program": null,
+            "stop": false,
+            "port": 4711
+          }
+        ],
+        "variables": {
+          "AskForProgram": "extension.jint-debugger.getProgram"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.3",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.84.0",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "@vscode/test-electron": "^2.3.6",
+    "esbuild": "^0.19.5",
+    "eslint": "^8.52.0",
+    "glob": "^10.3.10",
+    "typescript": "^5.2.2"
+  }
 }
