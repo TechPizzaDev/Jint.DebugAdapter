@@ -22,11 +22,13 @@ namespace Jint.DebugAdapter
     {
         private List<Position> breakPointPositions;
 
+        public string SourceId { get; }
         public Program Ast { get; }
         public List<Position> BreakPointPositions => breakPointPositions ??= CollectBreakPointPositions();
 
-        public ScriptInfo(Program ast)
+        public ScriptInfo(string sourceId, Program ast)
         {
+            SourceId = sourceId;
             Ast = ast;
         }
 

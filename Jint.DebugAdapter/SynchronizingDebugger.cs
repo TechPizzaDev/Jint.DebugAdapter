@@ -106,7 +106,7 @@ namespace Jint.DebugAdapter
             Terminated
         }
 
-        private readonly Dictionary<string, ScriptInfo> scriptInfoBySourceId = new();
+        private readonly Dictionary<string, ScriptInfo> scriptInfoBySourceId = new(new SourceIdComparer());
         private readonly Engine engine;
         private readonly CancellationTokenSource cts = new();
         private readonly Channel<BaseMessage> channel = Channel.CreateUnbounded<BaseMessage>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
@@ -290,9 +290,9 @@ namespace Jint.DebugAdapter
 
             await InvokeAsync(() =>
             {
-                engine.DebugHandler.BreakPoints.Set(new ExtendedBreakPoint(sourceId, position.Line, position.Column, condition, hitCondition, logMessage));
+                engine.DebugHandler.BreakPoints.Set(new ExtendedBreakPoint(info.SourceId, position.Line, position.Column, condition, hitCondition, logMessage));
             });
-            
+
             return position;
         }
 
@@ -533,7 +533,7 @@ namespace Jint.DebugAdapter
         private void RegisterScriptInfo(string id, Program ast)
         {
             // This may be called multiple times with the same ID (on e.g. restart)
-            scriptInfoBySourceId[id] = new ScriptInfo(ast);
+            scriptInfoBySourceId[id] = new ScriptInfo(id, ast);
         }
 
         /// <summary>
