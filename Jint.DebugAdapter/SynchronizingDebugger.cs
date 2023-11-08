@@ -89,8 +89,8 @@ namespace Jint.DebugAdapter
             }
         }
 
-        public delegate void DebugLogMessageEventHandler(string message, DebugInformation info);
-        public delegate void DebugPauseEventHandler(PauseReason reason, DebugInformation info);
+        public delegate void DebugLogMessageEventHandler(string message, ref DebugInformation info);
+        public delegate void DebugPauseEventHandler(PauseReason reason, ref DebugInformation info);
         public delegate void DebugEventHandler();
         public delegate void DebugExceptionEventHandler(Exception ex);
 
@@ -351,14 +351,14 @@ namespace Jint.DebugAdapter
             Error?.Invoke(ex);
         }
 
-        protected virtual void OnLogPoint(string message, DebugInformation info)
+        protected virtual void OnLogPoint(string message, ref DebugInformation info)
         {
-            LogPoint?.Invoke(message, info);
+            LogPoint?.Invoke(message, ref info);
         }
 
-        protected virtual void OnPaused(PauseReason reason, DebugInformation info)
+        protected virtual void OnPaused(PauseReason reason, ref DebugInformation info)
         {
-            Paused?.Invoke(reason, info);
+            Paused?.Invoke(reason, ref info);
         }
 
         protected virtual void OnResumed()
@@ -392,7 +392,7 @@ namespace Jint.DebugAdapter
             RegisterScriptInfo(ast.Location.Source, ast);
         }
 
-        private StepMode DebugHandler_Step(object sender, DebugInformation e)
+        private StepMode DebugHandler_Step(object sender, ref DebugInformation e)
         {
             cts.Token.ThrowIfCancellationRequested();
 
@@ -405,8 +405,9 @@ namespace Jint.DebugAdapter
             // (that's the reason Break isn't called in the first place). However, we're dealing with hit count
             // conditions, which still need to increment the number of times the breakpoint has been passed. And
             // logpoints, which still need to log, even when stepping through the logpoint.
-            HandleBreakPoint(e);
+            HandleBreakPoint(ref e);
 
+            PauseReason pauseReason;
             switch (state)
             {
                 case DebuggerState.WaitingForClient:
@@ -420,17 +421,20 @@ namespace Jint.DebugAdapter
                         return StepMode.None;
                     }
                     state = DebuggerState.Stepping;
-                    return OnPause(PauseReason.Entry, e);
+                    pauseReason = PauseReason.Entry;
+                    break;
 
                 case DebuggerState.Running:
                     return StepMode.None;
 
                 case DebuggerState.Pausing:
                     state = DebuggerState.Stepping;
-                    return OnPause(PauseReason.Pause, e);
+                    pauseReason = PauseReason.Pause;
+                    break;
 
                 case DebuggerState.Stepping:
-                    return OnPause(PauseReason.Step, e);
+                    pauseReason = PauseReason.Step;
+                    break;
 
                 case DebuggerState.Terminating:
                     throw new InvalidOperationException("Debugger should not be stepping while terminating");
@@ -439,9 +443,10 @@ namespace Jint.DebugAdapter
                     throw new NotImplementedException($"Debugger state handling for {state} not implemented.");
             }
 
+            return OnPause(pauseReason, ref e);
         }
 
-        private StepMode DebugHandler_Break(object sender, DebugInformation e)
+        private StepMode DebugHandler_Break(object sender, ref DebugInformation e)
         {
             cts.Token.ThrowIfCancellationRequested();
 
@@ -450,19 +455,19 @@ namespace Jint.DebugAdapter
                 return StepMode.None;
             }
 
-            bool breakPointShouldBreak = HandleBreakPoint(e);
+            bool breakPointShouldBreak = HandleBreakPoint(ref e);
 
             switch (e.PauseType)
             {
                 case PauseType.DebuggerStatement:
                     state = DebuggerState.Stepping;
-                    return OnPause(PauseReason.DebuggerStatement, e);
+                    return OnPause(PauseReason.DebuggerStatement, ref e);
 
                 case PauseType.Break:
                     if (breakPointShouldBreak)
                     {
                         state = DebuggerState.Stepping;
-                        return OnPause(PauseReason.BreakPoint, e);
+                        return OnPause(PauseReason.BreakPoint, ref e);
                     }
                     break;
             }
@@ -472,7 +477,7 @@ namespace Jint.DebugAdapter
         }
 
 
-        private StepMode DebugHandler_Skip(object sender, DebugInformation e)
+        private StepMode DebugHandler_Skip(object sender, ref DebugInformation e)
         {
             cts.Token.ThrowIfCancellationRequested();
 
@@ -485,7 +490,7 @@ namespace Jint.DebugAdapter
             return nextStep;
         }
 
-        private bool HandleBreakPoint(DebugInformation info)
+        private bool HandleBreakPoint(ref DebugInformation info)
         {
             // Custom "extensions" to Jint's breakpoint functionality - hit (count) conditions and logpoints.
             if (info.BreakPoint == null)
@@ -510,7 +515,7 @@ namespace Jint.DebugAdapter
                 {
                     // We're on the engine thread (it called us), so we're free to use Evaluate directly:
                     var message = engine.DebugHandler.Evaluate(breakPoint.LogMessage);
-                    OnLogPoint(message.AsString(), info);
+                    OnLogPoint(message.AsString(), ref info);
                     return false;
                 }
             }
@@ -519,9 +524,9 @@ namespace Jint.DebugAdapter
             return true;
         }
 
-        private StepMode OnPause(PauseReason reason, DebugInformation e)
+        private StepMode OnPause(PauseReason reason, ref DebugInformation e)
         {
-            OnPaused(reason, e);
+            OnPaused(reason, ref e);
 
             Wait();
 

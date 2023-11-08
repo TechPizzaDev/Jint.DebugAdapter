@@ -113,14 +113,14 @@ namespace Jint.DebugAdapter
         }
 
 
-        private void Debugger_LogPoint(string message, DebugInformation e)
+        private void Debugger_LogPoint(string message, ref DebugInformation e)
         {
             // TODO: Something is messing with the stack frames (and probably other things).
             // Thread desynchronization due to outputting while running?
             Console.Send(OutputCategory.Stdout, message);
         }
 
-        private void Debugger_Paused(PauseReason reason, DebugInformation info)
+        private void Debugger_Paused(PauseReason reason, ref DebugInformation info)
         {
             currentDebugInformation = info;
             variableStore.Clear();
