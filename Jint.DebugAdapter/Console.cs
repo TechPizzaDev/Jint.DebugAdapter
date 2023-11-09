@@ -165,16 +165,16 @@ namespace Jint.DebugAdapter
         private void InternalSend(OutputCategory category, string message, OutputGroup group = null)
         {
             EnsureOnEngineThread();
-            
+
             SourceLocation location = null;
-            
+
             // We're on the engine thread, so we're free to call it directly
             var engineLocation = engine.DebugHandler.CurrentLocation;
-            if (engineLocation != null)
+            if (engineLocation.Start.Line != 0)
             {
-                location = adapter.ToClientSourceLocation(engineLocation.Value);
+                location = adapter.ToClientSourceLocation(engineLocation);
             }
-            
+
             adapter.SendEvent(new OutputEvent(message)
             {
                 Category = category,

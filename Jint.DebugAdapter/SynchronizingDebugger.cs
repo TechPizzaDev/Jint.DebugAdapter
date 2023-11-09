@@ -138,9 +138,9 @@ namespace Jint.DebugAdapter
             engineThreadId = Environment.CurrentManagedThreadId;
         }
 
-        public async Task<Location?> GetCurrentLocationAsync()
+        public async Task<Location> GetCurrentLocationAsync()
         {
-            return await InvokeAsync(() => engine?.DebugHandler.CurrentLocation);
+            return await InvokeAsync(() => engine.DebugHandler.CurrentLocation);
         }
 
         public ScriptInfo GetScriptInfo(string id)
