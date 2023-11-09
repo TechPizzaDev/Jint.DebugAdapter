@@ -19,8 +19,9 @@ namespace Jint.DebugAdapter.Variables
         {
             try
             {
-                scope.SetBindingValue(name, value);
-                return scope.GetBindingValue(name);
+                var key = (Key) name;
+                scope.SetBindingValue(key, value);
+                return scope.GetBindingValue(key);
             }
             catch (Exception ex)
             {
@@ -46,7 +47,7 @@ namespace Jint.DebugAdapter.Variables
                 }
                 foreach (var name in scope.BindingNames)
                 {
-                    yield return CreateVariable(name, scope.GetBindingValue(name));
+                    yield return CreateVariable(name, scope.GetBindingValue((Key) name));
                 }
             }
 
