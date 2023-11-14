@@ -14,7 +14,7 @@ namespace Jither.DebugAdapter.Protocol
         public bool Success { get; set; }
 
         [JsonPropertyName("request_seq")]
-        public int RequestSeq { get; set; }
+        public long RequestSeq { get; set; }
         
         public string Message { get; set; }
         
@@ -37,7 +37,7 @@ namespace Jither.DebugAdapter.Protocol
         [JsonPropertyName("body"), JsonPropertyOrder(100)]
         public object SerializedBody => Body;
 
-        public ProtocolResponse(string command, int requestSeq, bool success, Responses.ProtocolResponseBody body, string message = null)
+        public ProtocolResponse(string command, long requestSeq, bool success, Responses.ProtocolResponseBody body, string message = null)
         {
             Command = command;
             RequestSeq = requestSeq;

@@ -43,7 +43,7 @@ namespace Jither.DebugAdapter.Protocol
         private readonly Queue<byte[]> messageQueueOut = new();
         private readonly ConcurrentQueue<ProtocolEvent> eventQueue = new();
 
-        private int _nextSeq = 0;
+        private long _nextSeq = 0;
 
         // syncOutput should be locked when accessing IsSending
         private bool IsSending
@@ -547,7 +547,7 @@ namespace Jither.DebugAdapter.Protocol
             }
         }
 
-        private int GenerateNextSeq()
+        private long GenerateNextSeq()
         {
             return Interlocked.Increment(ref _nextSeq);
         }

@@ -11,7 +11,7 @@ namespace Jither.DebugAdapter.Protocol
         public string Type { get; set; }
 
         [JsonPropertyOrder(-1)]
-        public int Seq { get; set; }
+        public long Seq { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement> AdditionalProperties { get; set; }
