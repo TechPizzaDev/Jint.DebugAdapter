@@ -14,8 +14,8 @@ namespace Jither.DebugAdapter.Helpers
     {
         private readonly StringBuilder builder;
 
-// Suppress "Remove unused parameter" - formattedCount, although unused, is required by compiler for
-// InterpolatedStringHandler.
+        // Suppress "Remove unused parameter" - formattedCount, although unused, is required by compiler for
+        // InterpolatedStringHandler.
 #pragma warning disable IDE0060
 
         public LoggerStringHandler(int literalLength, int formattedCount, LogLevel level, out bool shouldAppend)
@@ -51,6 +51,7 @@ namespace Jither.DebugAdapter.Helpers
 
     public enum LogLevel
     {
+        Debug,
         Verbose,
         Info,
         Warning,
@@ -67,7 +68,7 @@ namespace Jither.DebugAdapter.Helpers
     {
         public void Log(LogLevel level, string message)
         {
-            
+
         }
     }
 
@@ -100,6 +101,8 @@ namespace Jither.DebugAdapter.Helpers
 
     public class Logger
     {
+        public LogLevel Level => LogManager.Level;
+
         public Logger()
         {
         }

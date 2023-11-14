@@ -191,7 +191,7 @@ namespace Jither.DebugAdapter.Protocol
         {
             // We're assuming that the header is actually ASCII - no UTF-8 sequences (which might include a byte 0x0d that's not a CR)
             // Find next occurrence of CR
-            var newlinePosition = buffer.PositionOf((byte)'\r');
+            var newlinePosition = buffer.PositionOf((byte) '\r');
             if (newlinePosition == null)
             {
                 header = default;
@@ -210,7 +210,7 @@ namespace Jither.DebugAdapter.Protocol
             var newlinesSpan = newlinesBuffer.ToSpan();
 
             // Check that those 4 bytes are two CR+LF = end of header
-            if (newlinesSpan[0] != (byte)'\r' || newlinesSpan[1] != (byte)'\n' || newlinesSpan[2] != (byte)'\r' || newlinesSpan[3] != (byte)'\n')
+            if (newlinesSpan[0] != (byte) '\r' || newlinesSpan[1] != (byte) '\n' || newlinesSpan[2] != (byte) '\r' || newlinesSpan[3] != (byte) '\n')
             {
                 header = default;
                 return false;
@@ -294,6 +294,9 @@ namespace Jither.DebugAdapter.Protocol
                 case BaseProtocolEvent evt:
                     await HandleEvent(evt);
                     break;
+                default:
+                    await HandleMessage(message);
+                    break;
             }
         }
 
@@ -302,7 +305,12 @@ namespace Jither.DebugAdapter.Protocol
             try
             {
                 // Interpolation for lazy serialization
-                logger.Log(LogLevel.Verbose, $"{JsonHelper.SerializeForOutput(request)}");
+                if (logger.Level <= LogLevel.Verbose)
+                {
+                    logger.Log(LogLevel.Verbose, $"Incoming request[{request.Seq}]: {request.Command}");
+                }
+                logger.Log(LogLevel.Debug, $"{JsonHelper.SerializeForOutput(request)}");
+
                 bool disconnecting = request.Command == "disconnect";
                 if (disconnecting)
                 {
@@ -337,14 +345,35 @@ namespace Jither.DebugAdapter.Protocol
         private Task HandleResponse(BaseProtocolResponse response)
         {
             // Interpolation for lazy serialization
-            logger.Log(LogLevel.Verbose, $"{JsonHelper.SerializeForOutput(response)}");
+            if (logger.Level <= LogLevel.Verbose)
+            {
+                logger.Log(
+                    LogLevel.Verbose,
+                    $"Incoming response[{response.Seq}]: {response.Command}[{response.RequestSeq}] {response.Message}");
+            }
+            logger.Log(LogLevel.Debug, $"{JsonHelper.SerializeForOutput(response)}");
             return Task.CompletedTask;
         }
 
         private Task HandleEvent(BaseProtocolEvent evt)
         {
             // Interpolation for lazy serialization
-            logger.Log(LogLevel.Verbose, $"{JsonHelper.SerializeForOutput(evt)}");
+            if (logger.Level <= LogLevel.Verbose)
+            {
+                logger.Log(LogLevel.Verbose, $"Incoming event[{evt.Seq}]: {evt.Event}");
+            }
+            logger.Log(LogLevel.Debug, $"{JsonHelper.SerializeForOutput(evt)}");
+            return Task.CompletedTask;
+        }
+
+        private Task HandleMessage(ProtocolMessage message)
+        {
+            // Interpolation for lazy serialization
+            if (logger.Level <= LogLevel.Verbose)
+            {
+                logger.Log(LogLevel.Verbose, $"Incoming {message.Type}[{message.Seq}]");
+            }
+            logger.Log(LogLevel.Debug, $"{JsonHelper.SerializeForOutput(message)}");
             return Task.CompletedTask;
         }
 
@@ -427,8 +456,29 @@ namespace Jither.DebugAdapter.Protocol
             {
                 message.Seq = GenerateNextSeq();
             }
+
             // Interpolation for lazy serialization
-            logger.Log(LogLevel.Verbose, $"{JsonHelper.SerializeForOutput(message)}");
+            if (logger.Level <= LogLevel.Verbose)
+            {
+                switch (message)
+                {
+                    case BaseProtocolRequest req:
+                        logger.Log(LogLevel.Verbose, $"Outgoing request[{req.Seq}]: {req.Command}");
+                        break;
+                    case BaseProtocolResponse resp:
+                        logger.Log(
+                            LogLevel.Verbose,
+                            $"Outgoing response[{resp.Seq}]: {resp.Command}[{resp.RequestSeq}] {resp.Message}");
+                        break;
+                    case BaseProtocolEvent evt:
+                        logger.Log(LogLevel.Verbose, $"Outgoing event[{evt.Seq}]: {evt.Event}");
+                        break;
+                    default:
+                        logger.Log(LogLevel.Verbose, $"Outgoing [{message.Type}][{message.Seq}]");
+                        break;
+                }
+            }
+            logger.Log(LogLevel.Debug, $"{JsonHelper.SerializeForOutput(message)}");
 
             string json = JsonHelper.Serialize(message);
             var bytes = Encoding.UTF8.GetBytes(json);
