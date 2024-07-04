@@ -1,13 +1,5 @@
-﻿using System.Text.Encodings.Web;
-using System.Text.Json;
-using Jint.Native;
-using Jint.Native.Argument;
-using Jint.Native.Array;
-using Jint.Native.Date;
-using Jint.Native.Function;
+﻿using Jint.Native;
 using Jint.Native.Object;
-using Jint.Native.RegExp;
-using Jint.Native.TypedArray;
 using Jint.Runtime.Debugger;
 using Jint.Runtime.Descriptors;
 

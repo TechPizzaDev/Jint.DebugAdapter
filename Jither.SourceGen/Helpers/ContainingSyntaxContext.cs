@@ -36,7 +36,7 @@ public readonly record struct ContainingSyntaxContext(
                     return variance != "" ? $"{variance} {id}" : id;
                 })
                 .ToImmutableArray() ?? ImmutableArray<string>.Empty;
-            
+
             ContainingTypeSyntax syntax = new(
                 declaration.Kind(),
                 declaration.Modifiers.Select(m => m.ToString()).ToImmutableArray(),

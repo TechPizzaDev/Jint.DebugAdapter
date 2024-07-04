@@ -46,7 +46,7 @@ namespace Jint.DebugAdapter
 
         private bool restarting;
         private DebugInformation currentDebugInformation;
-    
+
         public Console Console { get; }
 
         public JintAdapter(IScriptHost host, Engine engine, Endpoint endpoint) : base(endpoint)
@@ -165,17 +165,18 @@ namespace Jint.DebugAdapter
         protected override async Task<BreakpointLocationsResponse> BreakpointLocationsRequest(BreakpointLocationsArguments arguments)
         {
             string id = host.SourceProvider.GetSourceId(arguments.Source);
-            
+
             var (start, end) = ToJintRange(arguments.Line, arguments.Column, arguments.EndLine, arguments.EndColumn);
 
             var info = debugger.GetScriptInfo(id);
             var positions = info.FindBreakPointPositionsInRange(start, end);
 
-            var locations = positions.Select(p => {
+            var locations = positions.Select(p =>
+            {
                 var pos = ToClientPosition(p);
                 return new BreakpointLocation(pos.Line, pos.Column);
             });
-            
+
             return new BreakpointLocationsResponse(locations);
         }
 
@@ -290,7 +291,7 @@ namespace Jint.DebugAdapter
             bool debug = !(arguments.NoDebug ?? false);
 
             await debugger.LaunchAsync(
-                () => host.Launch(program, arguments.AdditionalProperties), 
+                () => host.Launch(program, arguments.AdditionalProperties),
                 debug: debug,
                 pauseOnEntry: pauseOnEntry,
                 attach: true,
