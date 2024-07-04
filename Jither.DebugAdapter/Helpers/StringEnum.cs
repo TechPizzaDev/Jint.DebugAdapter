@@ -9,7 +9,6 @@
 
         protected StringEnum()
         {
-
         }
 
         protected static T Create(string value)

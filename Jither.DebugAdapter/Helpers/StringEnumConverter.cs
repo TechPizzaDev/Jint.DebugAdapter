@@ -11,7 +11,6 @@ namespace Jither.DebugAdapter.Helpers
     {
         public StringEnumConverter()
         {
-            
         }
 
         public override bool CanConvert(Type typeToConvert)
@@ -44,7 +43,8 @@ namespace Jither.DebugAdapter.Helpers
             }
         }
 
-        private class Converter<T> : JsonConverter<StringEnum<T>> where T : StringEnum<T>, new()
+        private class Converter<T> : JsonConverter<StringEnum<T>> 
+            where T : StringEnum<T>, new()
         {
             public Converter()
             {
@@ -56,6 +56,7 @@ namespace Jither.DebugAdapter.Helpers
                 {
                     throw new JsonException("Expected string value");
                 }
+
                 string value = reader.GetString();
                 if (StringEnum<T>.TryParse(value, out T result))
                 {
