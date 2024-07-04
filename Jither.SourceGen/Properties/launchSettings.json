@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Jither.SourceGen": {
+      "commandName": "Project",
+      "commandLineArgs": "../../../../Jither.DebugAdapter/Generated\r\n../../../../Jither.DebugAdapter/Jither.DebugAdapter.csproj"
+    }
+  }
+}

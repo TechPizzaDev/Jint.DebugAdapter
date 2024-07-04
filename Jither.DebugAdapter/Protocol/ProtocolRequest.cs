@@ -41,7 +41,8 @@ namespace Jither.DebugAdapter.Protocol
         internal abstract void Sanitize(ProtocolArguments arguments);
     }
 
-    public class IncomingProtocolRequest<TArguments> : IncomingProtocolRequest where TArguments: ProtocolArguments
+    public class IncomingProtocolRequest<TArguments> : IncomingProtocolRequest 
+        where TArguments: ProtocolArguments
     {
         [JsonPropertyOrder(100)]
         public TArguments Arguments { get; set; }

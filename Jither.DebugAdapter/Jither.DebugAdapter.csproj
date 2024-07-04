@@ -1,13 +1,32 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="6.0.2" />
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jither.SourceGen\Jither.SourceGen.csproj" Exclude="all" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GeneratorToolCondition>false</GeneratorToolCondition>
+    <GeneratorToolCondition Condition="'$(TargetFramework)' != '' AND '$(DesignTimeBuild)' != 'true'">true</GeneratorToolCondition>
+    
+    <GeneratorToolPath>..\Jither.SourceGen\bin\$(Configuration)\$(TargetFramework)\Jither.SourceGen.exe</GeneratorToolPath>
+    <GeneratorToolArgs>$(MSBuildProjectDirectory)/Generated $(MSBuildProjectFullPath)</GeneratorToolArgs>
+  </PropertyGroup>
+
+  <Target Name="GenerateCode" BeforeTargets="CoreCompile" Condition="$(GeneratorToolCondition)">
+    <Message Text="$(GeneratorToolArgs)" />
+    <Exec Command="$(GeneratorToolPath) $(GeneratorToolArgs)" />
+  </Target>
 
 </Project>
