@@ -8,18 +8,11 @@ namespace Jither.DebugAdapter.Helpers
     {
         public override ProtocolMessage Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType != JsonTokenType.StartObject)
-            {
-                throw new JsonException($"Expected protocol message to be a JSON object");
-            }
+            ThrowHelper.ExpectJsonToken(reader, JsonTokenType.StartObject);
 
             using (var doc = JsonDocument.ParseValue(ref reader))
             {
-                if (!doc.RootElement.TryGetProperty("type", out var typeName))
-                {
-                    throw new JsonException($"Protocol message type not found");
-                }
-
+                var typeName = JsonHelper.GetProperty(doc.RootElement, "type"u8);
                 var result = GetConcreteType(typeName.GetString(), doc.RootElement, options);
                 return result;
             }

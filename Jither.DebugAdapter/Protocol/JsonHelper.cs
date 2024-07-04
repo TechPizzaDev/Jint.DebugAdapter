@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Jither.DebugAdapter.Helpers;
 
@@ -38,6 +39,20 @@ namespace Jither.DebugAdapter.Protocol
         public static string Serialize<T>(T obj)
         {
             return JsonSerializer.Serialize<object>(obj, options);
+        }
+
+        public static JsonElement GetProperty(JsonElement element, ReadOnlySpan<byte> name)
+        {
+            if (!element.TryGetProperty(name, out var prop))
+            {
+                Throw(name);
+            }
+            return prop;
+
+            static void Throw(ReadOnlySpan<byte> name)
+            {
+                throw new JsonException($"\"{Encoding.UTF8.GetString(name)}\" property not found.");
+            }
         }
     }
 }
