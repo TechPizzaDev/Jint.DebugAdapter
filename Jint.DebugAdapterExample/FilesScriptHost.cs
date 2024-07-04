@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Jint.DebugAdapter;
-using Jint.Runtime.Debugger;
 
 namespace Jint.DebugAdapterExample
 {
@@ -28,7 +27,7 @@ namespace Jint.DebugAdapterExample
 
         public void Launch(string program, IReadOnlyDictionary<string, JsonElement> arguments)
         {
-            Engine.ImportModule(program);
+            Engine.Modules.Import(program);
         }
     }
 }

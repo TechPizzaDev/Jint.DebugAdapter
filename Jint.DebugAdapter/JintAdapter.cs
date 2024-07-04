@@ -1,14 +1,14 @@
-﻿using Jither.DebugAdapter.Protocol.Events;
+﻿using System.Text.Json;
+using Acornima;
+using Jint.DebugAdapter.Variables;
+using Jint.Runtime.Debugger;
+using Jither.DebugAdapter;
+using Jither.DebugAdapter.Helpers;
+using Jither.DebugAdapter.Protocol.Events;
 using Jither.DebugAdapter.Protocol.Requests;
 using Jither.DebugAdapter.Protocol.Responses;
 using Jither.DebugAdapter.Protocol.Types;
-using Jint.Runtime.Debugger;
-using Jither.DebugAdapter;
 using Thread = Jither.DebugAdapter.Protocol.Types.Thread;
-using Jither.DebugAdapter.Helpers;
-using Esprima;
-using Jint.DebugAdapter.Variables;
-using System.Text.Json;
 
 namespace Jint.DebugAdapter
 {
@@ -324,7 +324,7 @@ namespace Jint.DebugAdapter
         {
             var frame = currentDebugInformation.CallStack[arguments.FrameId];
             return new ScopesResponse(frame.ScopeChain.Select(s =>
-                new Scope(s.ScopeType.ToString(),
+                new Jither.DebugAdapter.Protocol.Types.Scope(s.ScopeType.ToString(),
                 s.ScopeType == DebugScopeType.Local ?
                     variableStore.Add(s, frame) : // For local scope, we include the frame to get "this" and returnval
                     variableStore.Add(s))
@@ -455,10 +455,10 @@ namespace Jint.DebugAdapter
             return new VariablesResponse(variables);
         }
 
-        internal SourceLocation ToClientSourceLocation(Location location)
+        internal SourceLocation ToClientSourceLocation(Acornima.SourceLocation location)
         {
             return new SourceLocation(
-                source: host.SourceProvider.GetSource(location.Source),
+                source: host.SourceProvider.GetSource(location.SourceFile),
                 start: ToClientPosition(location.Start),
                 end: ToClientPosition(location.End)
             );

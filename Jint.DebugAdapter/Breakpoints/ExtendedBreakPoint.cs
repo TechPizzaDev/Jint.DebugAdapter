@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using System.Web;
-using Esprima;
-using Esprima.Ast;
+using Acornima;
+using Acornima.Ast;
 using Jint.Runtime.Debugger;
 
 namespace Jint.DebugAdapter.BreakPoints
@@ -22,7 +22,7 @@ namespace Jint.DebugAdapter.BreakPoints
 
         public Func<uint, bool> HitCondition { get; set; }
         public uint HitCount { get; set; }
-        public Script LogMessage { get; set; }
+        public Prepared<Script> LogMessage { get; set; }
 
         private Func<uint, bool> ParseHitCondition(string condition)
         {
@@ -56,11 +56,11 @@ namespace Jint.DebugAdapter.BreakPoints
             };
         }
 
-        private Script LogMessageToAst(string message)
+        private Prepared<Script> LogMessageToAst(string message)
         {
             if (string.IsNullOrEmpty(message))
             {
-                return null;
+                return default;
             }
 
             var parts = new List<Expression>();
@@ -69,8 +69,10 @@ namespace Jint.DebugAdapter.BreakPoints
             void AddLiteral(string value)
             {
                 value = HttpUtility.JavaScriptStringEncode(value);
-                parts.Add(new Literal(value, "\"" + value + "\""));
+                parts.Add(new StringLiteral(value, "\"" + value + "\""));
             }
+
+            var parser = new Parser();
 
             // Build a list of string literals (outside braces) and parsed expressions (inside braces):
             while (true)
@@ -83,13 +85,12 @@ namespace Jint.DebugAdapter.BreakPoints
                 }
                 AddLiteral(message[end..start]);
 
-                var parser = new JavaScriptParser();
                 Script partAst;
                 try
                 {
                     partAst = parser.ParseScript(message[start..]);
                 }
-                catch (ParserException ex)
+                catch (ParseErrorException ex)
                 {
                     throw new FormatException($"Invalid log point code: {ex.Message}");
                 }
@@ -121,11 +122,12 @@ namespace Jint.DebugAdapter.BreakPoints
             Expression expr = parts[^1];
             for (int i = parts.Count - 2; i >= 0; i--)
             {
-                expr = new BinaryExpression("+", parts[i], expr);
+                expr = new NonLogicalBinaryExpression(Operator.Addition, parts[i], expr);
             }
-            var statement = new ExpressionStatement(expr);
+            var statement = new NonSpecialExpressionStatement(expr);
 
-            return new Script(NodeList.Create<Statement>(new[] { statement }), strict: true);
+            var script = new Script(NodeList.From<Statement>(new[] { statement }), strict: true);
+            return Engine.PrepareScript(script);
         }
     }
 }

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Jither.DebugAdapter.Protocol;
+﻿using Jither.DebugAdapter.Protocol;
 using Jither.DebugAdapter.Protocol.Events;
 using Jither.DebugAdapter.Protocol.Requests;
 using Jither.DebugAdapter.Protocol.Responses;
-using Jither.DebugAdapter.Protocol.Types;
 
 namespace Jither.DebugAdapter
 {

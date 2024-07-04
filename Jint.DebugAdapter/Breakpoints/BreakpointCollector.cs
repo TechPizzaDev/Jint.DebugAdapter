@@ -1,6 +1,5 @@
-﻿using Esprima;
-using Esprima.Ast;
-using Esprima.Utils;
+﻿using Acornima;
+using Acornima.Ast;
 
 namespace Jint.DebugAdapter.BreakPoints
 {
@@ -21,7 +20,7 @@ namespace Jint.DebugAdapter.BreakPoints
                 positions.Add(node.Location.Start);
             }
             base.Visit(node);
-            
+
             return node;
         }
 

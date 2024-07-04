@@ -1,10 +1,7 @@
-﻿using Jither.DebugAdapter.Protocol.Types;
+﻿using Jint.Native;
 using Jint.Native.Object;
-using Jint.Native;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
-using Jint.Native.TypedArray;
-using Jint.Native.Argument;
 
 namespace Jint.DebugAdapter.Variables
 {
@@ -49,7 +46,7 @@ namespace Jint.DebugAdapter.Variables
             var items = instance switch
             {
                 JsTypedArray => GetTypedArrayIndexValues(start, count),
-                ArgumentsInstance => GetArgumentsArrayIndexValues(start, count),
+                JsArguments => GetArgumentsArrayIndexValues(start, count),
                 _ => GetArrayIndexValues(start, count)
             };
 
@@ -89,7 +86,7 @@ namespace Jint.DebugAdapter.Variables
         private IEnumerable<KeyValuePair<string, JsValue>> GetTypedArrayIndexValues(int? start, int? count)
         {
             var arr = instance as JsTypedArray;
-            
+        
             int length = (int)arr.Length;
             if (count > 0)
             {
@@ -131,7 +128,7 @@ namespace Jint.DebugAdapter.Variables
             var props = instance switch
             {
                 JsTypedArray => GetTypedArrayProperties(),
-                ArgumentsInstance => GetArgumentsProperties(),
+                JsArguments => GetArgumentsProperties(),
                 _ => GetArrayProperties()
             };
 

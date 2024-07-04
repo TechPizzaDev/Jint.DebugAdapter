@@ -1,23 +1,9 @@
-﻿using Esprima;
-using Esprima.Ast;
+﻿using Acornima;
+using Acornima.Ast;
 using Jint.DebugAdapter.BreakPoints;
 
 namespace Jint.DebugAdapter
 {
-    public class EsprimaPositionComparer : IComparer<Position>
-    {
-        public static readonly EsprimaPositionComparer Default = new();
-
-        public int Compare(Position x, Position y)
-        {
-            if (x.Line != y.Line)
-            {
-                return x.Line - y.Line;
-            }
-            return x.Column - y.Column;
-        }
-    }
-
     public class ScriptInfo
     {
         private List<Position> breakPointPositions;
@@ -35,9 +21,7 @@ namespace Jint.DebugAdapter
         public IEnumerable<Position> FindBreakPointPositionsInRange(Position start, Position end)
         {
             var positions = BreakPointPositions;
-
-            int index = positions.BinarySearch(start, EsprimaPositionComparer.Default);
-
+            var index = positions.BinarySearch(start);
             if (index < 0)
             {
                 // Get the first break after the location
@@ -48,7 +32,7 @@ namespace Jint.DebugAdapter
             {
                 var position = positions[index++];
                 // We know we're past the start of the range. If we're also past the end, break
-                if (EsprimaPositionComparer.Default.Compare(position, end) > 0)
+                if (position.CompareTo(end) > 0)
                 {
                     break;
                 }
@@ -60,7 +44,7 @@ namespace Jint.DebugAdapter
         public Position FindNearestBreakPointPosition(Position position)
         {
             var positions = BreakPointPositions;
-            int index = positions.BinarySearch(position, EsprimaPositionComparer.Default);
+            var index = positions.BinarySearch(position);
             if (index < 0)
             {
                 // Get the first break after the location
@@ -76,7 +60,7 @@ namespace Jint.DebugAdapter
             // Some statements may be at the same location
             var list = collector.Positions.Distinct().ToList();
             // We need the list sorted (it's going to be used for binary search)
-            list.Sort(EsprimaPositionComparer.Default);
+            list.Sort();
             return list;
         }
     }

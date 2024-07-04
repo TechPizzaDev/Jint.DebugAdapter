@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 using System.Threading.Channels;
-using System.Threading.Tasks;
-using Esprima;
-using Esprima.Ast;
+using Acornima;
+using Acornima.Ast;
 using Jint.DebugAdapter.BreakPoints;
 using Jint.Native;
 using Jint.Runtime.Debugger;
@@ -138,9 +133,9 @@ namespace Jint.DebugAdapter
             engineThreadId = Environment.CurrentManagedThreadId;
         }
 
-        public async Task<Location> GetCurrentLocationAsync()
+        public async Task<Acornima.SourceLocation> GetCurrentLocationAsync()
         {
-            return await InvokeAsync(() => engine.DebugHandler.CurrentLocation);
+            return await InvokeAsync(() => engine.Debugger.CurrentLocation);
         }
 
         public ScriptInfo GetScriptInfo(string id)
@@ -169,7 +164,7 @@ namespace Jint.DebugAdapter
             void HandleParsed(object sender, Program ast)
             {
                 EnsureOnEngineThread();
-                engine.DebugHandler.BeforeEvaluate -= HandleParsed;
+                engine.Debugger.BeforeEvaluate -= HandleParsed;
                 launchCompleted.SetResult();
 
                 // This will be called on the engine thread, hence we can pause, and the LaunchAsync method
@@ -192,7 +187,7 @@ namespace Jint.DebugAdapter
                 }
                 try
                 {
-                    engine.DebugHandler.BeforeEvaluate += HandleParsed;
+                    engine.Debugger.BeforeEvaluate += HandleParsed;
                     action();
                     OnDone();
                 }
@@ -222,12 +217,12 @@ namespace Jint.DebugAdapter
 
         public async Task<JsValue> EvaluateAsync(string expression)
         {
-            return await InvokeAsync(() => engine.DebugHandler.Evaluate(expression));
+            return await InvokeAsync(() => engine.Debugger.Evaluate(expression));
         }
 
-        public async Task<JsValue> EvaluateAsync(Script expression)
+        public async Task<JsValue> EvaluateAsync(Prepared<Script> expression)
         {
-            return await InvokeAsync(() => engine.DebugHandler.Evaluate(expression));
+            return await InvokeAsync(() => engine.Debugger.Evaluate(expression));
         }
 
         /// <summary>
@@ -280,7 +275,7 @@ namespace Jint.DebugAdapter
 
         public async Task ClearBreakPointsAsync()
         {
-            await InvokeAsync(() => engine.DebugHandler.BreakPoints.Clear());
+            await InvokeAsync(() => engine.Debugger.BreakPoints.Clear());
         }
 
         public async Task<Position> SetBreakPointAsync(string sourceId, Position position, string condition = null, string hitCondition = null, string logMessage = null)
@@ -290,7 +285,7 @@ namespace Jint.DebugAdapter
 
             await InvokeAsync(() =>
             {
-                engine.DebugHandler.BreakPoints.Set(new ExtendedBreakPoint(info.SourceId, position.Line, position.Column, condition, hitCondition, logMessage));
+                engine.Debugger.BreakPoints.Set(new ExtendedBreakPoint(info.SourceId, position.Line, position.Column, condition, hitCondition, logMessage));
             });
 
             return position;
@@ -368,18 +363,18 @@ namespace Jint.DebugAdapter
 
         private void AddEventHandlers()
         {
-            engine.DebugHandler.BeforeEvaluate += DebugHandler_BeforeEvaluate;
-            engine.DebugHandler.Break += DebugHandler_Break;
-            engine.DebugHandler.Step += DebugHandler_Step;
-            engine.DebugHandler.Skip += DebugHandler_Skip;
+            engine.Debugger.BeforeEvaluate += DebugHandler_BeforeEvaluate;
+            engine.Debugger.Break += DebugHandler_Break;
+            engine.Debugger.Step += DebugHandler_Step;
+            engine.Debugger.Skip += DebugHandler_Skip;
         }
 
         private void RemoveEventHandlers()
         {
-            engine.DebugHandler.BeforeEvaluate -= DebugHandler_BeforeEvaluate;
-            engine.DebugHandler.Break -= DebugHandler_Break;
-            engine.DebugHandler.Step -= DebugHandler_Step;
-            engine.DebugHandler.Skip -= DebugHandler_Skip;
+            engine.Debugger.BeforeEvaluate -= DebugHandler_BeforeEvaluate;
+            engine.Debugger.Break -= DebugHandler_Break;
+            engine.Debugger.Step -= DebugHandler_Step;
+            engine.Debugger.Skip -= DebugHandler_Skip;
         }
 
         private void Resume()
@@ -389,7 +384,7 @@ namespace Jint.DebugAdapter
 
         private void DebugHandler_BeforeEvaluate(object sender, Program ast)
         {
-            RegisterScriptInfo(ast.Location.Source, ast);
+            RegisterScriptInfo(ast.Location.SourceFile, ast);
         }
 
         private StepMode DebugHandler_Step(object sender, ref DebugInformation e)
@@ -511,10 +506,10 @@ namespace Jint.DebugAdapter
                 }
 
                 // If this is a logpoint rather than a breakpoint, log message and don't break
-                if (breakPoint.LogMessage != null)
+                if (breakPoint.LogMessage.IsValid)
                 {
                     // We're on the engine thread (it called us), so we're free to use Evaluate directly:
-                    var message = engine.DebugHandler.Evaluate(breakPoint.LogMessage);
+                    var message = engine.Debugger.Evaluate(breakPoint.LogMessage);
                     OnLogPoint(message.AsString(), ref info);
                     return false;
                 }

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
-using Esprima;
 using Jint.Native;
 using Jint.Runtime;
 using Jither.DebugAdapter.Protocol.Events;
@@ -169,8 +168,8 @@ namespace Jint.DebugAdapter
             SourceLocation location = null;
 
             // We're on the engine thread, so we're free to call it directly
-            var engineLocation = engine.DebugHandler.CurrentLocation;
-            if (engineLocation.Start.Line != 0)
+            var engineLocation = engine.Debugger.CurrentLocation;
+            if (engineLocation.SourceFile != null)
             {
                 location = adapter.ToClientSourceLocation(engineLocation);
             }

@@ -50,8 +50,8 @@ namespace Jint.DebugAdapter.Variables
 
             switch (value)
             {
-                case ArgumentsInstance:
                 case ArrayInstance:
+                case JsArguments:
                 case JsTypedArray:
                     obj = value as ObjectInstance;
                     // Yes, JS supports array length up to 2^32-1, but DAP only supports up to 2^31-1
@@ -118,11 +118,11 @@ namespace Jint.DebugAdapter.Variables
                 // escaped - but otherwise with minimal escaping for readability.
                 JsString => JsonSerializer.Serialize(value.ToString(), stringToJsonOptions),
 
-                ArgumentsInstance arr => RenderArrayPreview(arr, String.Empty),
+                JsArguments arr => RenderArrayPreview(arr, String.Empty),
                 ArrayInstance arr => RenderArrayPreview(arr, String.Empty),
                 JsTypedArray arr => RenderArrayPreview(arr, GetObjectType(arr)),
 
-                FunctionInstance func => $"ƒ {GetFunctionName(func) ?? name}",
+                Function func => $"ƒ {GetFunctionName(func) ?? name}",
 
                 JsRegExp => value.ToString(),
                 ObjectInstance obj => RenderObjectPreview(obj),
@@ -150,7 +150,7 @@ namespace Jint.DebugAdapter.Variables
                 JsSymbol or
                 JsNull => value.Type.ToString(),
 
-                FunctionInstance => "Function",
+                Function => "Function",
                 ObjectInstance obj => GetObjectType(obj),
                 _ => "Unknown type"
             };
@@ -168,9 +168,9 @@ namespace Jint.DebugAdapter.Variables
             return constructor?.Get("name")?.ToString() ?? "Object";
         }
 
-        
+    
         // Intended as possible future extension point
-        protected string GetFunctionName(FunctionInstance func)
+        protected string GetFunctionName(Function func)
         {
             if (func is ObjectConstructor)
             {
@@ -231,7 +231,7 @@ namespace Jint.DebugAdapter.Variables
         {
             string strValue = value switch
             {
-                FunctionInstance => "ƒ",
+                Function => "ƒ",
                 ObjectInstance => "{…}",
                 _ => RenderValue(key.ToString(), value)
             };
