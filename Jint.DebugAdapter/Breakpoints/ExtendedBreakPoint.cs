@@ -126,8 +126,7 @@ namespace Jint.DebugAdapter.BreakPoints
             }
             var statement = new NonSpecialExpressionStatement(expr);
 
-            var script = new Script(NodeList.From<Statement>(new[] { statement }), strict: true);
-            return Engine.PrepareScript(script);
+            return Engine.PrepareScript(NodeList.From<Statement>(statement), strict: true);
         }
     }
 }
